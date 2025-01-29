@@ -4,10 +4,9 @@ class MainGrid extends HTMLElement {
     this.shadowRoot.innerHTML = `
             <style>
               :host {   
-                    width: 100%;
-                    height: 100%;
                     display: grid;
-                    grid-template-rows: 80px 1fr 2fr;
+                    height: 100%;
+                    grid-template-rows: 80px max-content minmax(300px, 1fr);
                     grid-template-columns: 1fr;
                     gap: 8px;
                     background-color: var(--header-color);
@@ -21,10 +20,9 @@ class MainGrid extends HTMLElement {
               ::slotted(buffer-area) {
                 grid-row: 2 / span 1;
                 min-height: 240px;
+                position: relative;
               }
               ::slotted(work-area) {
-                height: 100%;
-                min-height: 300px;
                 grid-row: 3 / span 1;
               }
             </style>
