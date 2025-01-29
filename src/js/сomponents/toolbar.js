@@ -36,18 +36,31 @@ class Toolbar extends HTMLElement {
             <button data-action='clear'>Сбросить</button>
           </div>
         `;
+    this.addActionsListeners();
+  }
 
+  addActionsListeners() {
     const actionButtons = this.shadowRoot.querySelectorAll('button[data-action]');
     actionButtons.forEach((actionButton) => {
       actionButton.addEventListener('click', () => {
-        this.shadowRoot.dispatchEvent(
-          new CustomEvent('action', {
-            detail: actionButton.dataset.action,
-            composed: true,
-          }),
-        );
+        Toolbar.doAction(actionButton.dataset.action);
       });
     });
+  }
+
+  static doAction(actionName) {
+    switch (actionName) {
+      case 'create':
+        Toolbar.doCreateAction();
+        break;
+      default:
+        break;
+    }
+  }
+
+  static doCreateAction() {
+    const bufferArea = document.querySelector('buffer-area');
+    bufferArea.createPolygons();
   }
 }
 

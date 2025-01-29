@@ -1,34 +1,27 @@
 import {
   getVectorLength,
   getRandomNumberFromTo,
-  getRandomIndexFromTo,
   getVectorsDelta,
   getVectorsSum,
   numbersAreAlmostEqual,
+  getRandomIndexFromTo,
 } from './jsUtils';
 
-export default function createSVGPolygon() {
-  const width = getRandomIndexFromTo(70, 150);
-  const height = getRandomIndexFromTo(80, 120);
-
-  const polygonData = generatePolygonData({
-    width,
-    height,
-    vertsCount: getRandomIndexFromTo(3, 10),
-  });
-
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', polygonData.width);
-  svg.setAttribute('height', polygonData.height);
-
-  const polygon = document.createElementNS(svg.namespaceURI, 'polygon');
-  polygon.setAttribute('points', polygonData.points);
-
-  svg.append(polygon);
-  return svg;
+export default function generatePolygonsData() {
+  const polygonsCount = getRandomIndexFromTo(5, 20);
+  const polygonsData = [];
+  for (let i = 0; i < polygonsCount; ++i) {
+    polygonsData.push(
+      generatePolygonData({
+        width: getRandomIndexFromTo(80, 150),
+        height: getRandomIndexFromTo(80, 120),
+        vertsCount: getRandomIndexFromTo(3, 10),
+      }),
+    );
+  }
+  return polygonsData;
 }
-
-function generatePolygonData(param) {
+export function generatePolygonData(param) {
   const { width, height } = param;
   const pointsArray = generatePolygonPoints(param);
 

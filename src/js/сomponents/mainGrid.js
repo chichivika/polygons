@@ -20,7 +20,6 @@ class MainGrid extends HTMLElement {
               ::slotted(buffer-area) {
                 grid-row: 2 / span 1;
                 min-height: 240px;
-                position: relative;
               }
               ::slotted(work-area) {
                 grid-row: 3 / span 1;
