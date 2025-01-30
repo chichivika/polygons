@@ -1,23 +1,11 @@
 class DragArea extends HTMLElement {
-  constructor() {
-    super();
-
-    const resizeCallback = () => {
-      this.render();
-    };
-    this.resizeCallback = resizeCallback.bind(this);
-  }
+  shift = [0, 0];
 
   connectedCallback() {
-    window.addEventListener('resize', this.resizeCallback);
     this.style = `
         position: relative;
     `;
     this.render();
-  }
-
-  disconnectedCallback() {
-    window.removeEventListener('resize', this.resizeCallback);
   }
 
   attributeChangedCallback() {
@@ -41,27 +29,52 @@ class DragArea extends HTMLElement {
     if (ctx === null || Number.isNaN(cellSize)) {
       return;
     }
-    DragArea.drawCells({ ctx, cellSize, width: canvas.width, height: canvas.height });
+    this.drawCells({ ctx, cellSize, width: canvas.width, height: canvas.height });
   }
 
-  static drawCells({ ctx, cellSize, width, height }) {
+  drawCells({ ctx, cellSize, width, height }) {
     ctx.strokeStyle = 'lightgrey';
+    const shiftX = this.shift[0] % cellSize;
+    const shiftY = this.shift[1] % cellSize;
 
     const horizontalLinesCount = Math.floor(height / cellSize);
-    for (let i = 1; i <= horizontalLinesCount; ++i) {
+    for (let i = 0; i <= horizontalLinesCount; ++i) {
       ctx.beginPath();
-      ctx.moveTo(0, height - i * cellSize);
-      ctx.lineTo(width, height - i * cellSize);
+      const y = shiftY + height - i * cellSize;
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
       ctx.stroke();
     }
 
     const verticalLinesCount = Math.floor(width / cellSize);
-    for (let i = 1; i <= verticalLinesCount; ++i) {
+    for (let i = 0; i <= verticalLinesCount; ++i) {
       ctx.beginPath();
-      ctx.moveTo(i * cellSize, 0);
-      ctx.lineTo(i * cellSize, height);
+      const x = shiftX + i * cellSize;
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
       ctx.stroke();
     }
+  }
+
+  getCellByMouse(mouseX, mouseY) {
+    const rect = this.getBoundingClientRect();
+    if (mouseX < rect.left || mouseX > rect.left + rect.width) {
+      return null;
+    }
+    if (mouseY < rect.top || mouseY > rect.top + rect.height) {
+      return null;
+    }
+
+    const cellSize = this.getAttribute('cell-size');
+    const rowIndex = Math.floor((mouseX - rect.left) / cellSize);
+    const colIndex = Math.floor((rect.top + rect.height - mouseY) / cellSize);
+
+    return [rowIndex, colIndex];
+  }
+
+  setShift(newShift) {
+    this.shift = newShift;
+    this.render();
   }
 
   static get observedAttributes() {

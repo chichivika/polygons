@@ -21,7 +21,11 @@
     "import/extensions": 0,
     "no-plusplus": "off",
     "object-curly-newline": "off",
-    "radix": "off"
+    "radix": "off",
+    "no-continue": "off"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2022
   },
   "globals": {
     "browser": false,
