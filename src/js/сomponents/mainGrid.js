@@ -8,10 +8,10 @@ class MainGrid extends HTMLElement {
                     height: 100%;
                     grid-template-rows: 80px max-content minmax(300px, 1fr);
                     grid-template-columns: 1fr;
-                    gap: 8px;
+                    gap: 5px;
                     background-color: var(--header-color);
               }
-              :host > ::slotted(*) {
+              ::slotted(*) {
                 background-color: var(--bg-color);
               }
               ::slotted(app-toolbar) {
@@ -23,6 +23,7 @@ class MainGrid extends HTMLElement {
               }
               ::slotted(work-area) {
                 grid-row: 3 / span 1;
+                background-color: var(--ruler-bg-color);
               }
             </style>
             <slot name='toolbar'></slot>

@@ -31,14 +31,6 @@ class BufferArea extends HTMLElement {
     this.render();
   }
 
-  attributeChangedCallback() {
-    this.render();
-  }
-
-  static get observedAttributes() {
-    return ['polygons-data'];
-  }
-
   static renderPolygon(polygonData) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', polygonData.width);

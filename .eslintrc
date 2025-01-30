@@ -20,7 +20,8 @@
     "import/no-unresolved": 0,
     "import/extensions": 0,
     "no-plusplus": "off",
-    "object-curly-newline": "off"
+    "object-curly-newline": "off",
+    "radix": "off"
   },
   "globals": {
     "browser": false,
