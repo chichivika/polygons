@@ -7,14 +7,14 @@ import {
   getRandomIndexFromTo,
 } from './jsUtils';
 
-export default function generatePolygonsData() {
+export default function generatePolygonsData({ maxHeight }) {
   const polygonsCount = getRandomIndexFromTo(5, 20);
   const polygonsData = [];
   for (let i = 0; i < polygonsCount; ++i) {
     polygonsData.push(
       generatePolygonData({
         width: getRandomIndexFromTo(80, 150),
-        height: getRandomIndexFromTo(80, 120),
+        height: getRandomIndexFromTo(80, maxHeight),
         vertsCount: getRandomIndexFromTo(3, 10),
       }),
     );
