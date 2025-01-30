@@ -11,13 +11,18 @@ class BufferArea extends HTMLElement {
     super();
     this.polygonsData = [];
 
-    window.addEventListener('resize', () => {
+    this.resizeHandler = () => {
       this.render();
-    });
+    };
   }
 
   connectedCallback() {
+    window.addEventListener('resize', this.resizeHandler);
     this.render();
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('resize', this.resizeHandler);
   }
 
   render() {
@@ -97,7 +102,6 @@ class BufferArea extends HTMLElement {
       polygonEl.style.position = 'absolute';
       polygonEl.style.left = `${widthSum}px`;
       polygonEl.style.top = `${rowNumber * BufferArea.rowHeight + BufferArea.rowTopPadding}px`;
-      polygonEl.style.cursor = 'pointer';
       this.append(polygonEl);
       widthSum += data.width + polygonPadding;
     });

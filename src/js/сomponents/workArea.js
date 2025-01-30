@@ -9,10 +9,10 @@ class WorkArea extends HTMLElement {
 
   shift = [0, 0];
 
+  cellSize = 30;
+
   constructor() {
     super();
-
-    this.cellSize = 30;
 
     this.wheelHandler = (event) => {
       this.wheel(event);
