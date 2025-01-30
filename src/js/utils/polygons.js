@@ -5,6 +5,7 @@ import {
   getVectorsSum,
   numbersAreAlmostEqual,
   getRandomIndexFromTo,
+  generateKey,
 } from './jsUtils';
 
 export default function generatePolygonsData({ maxHeight }) {
@@ -43,6 +44,7 @@ export function generatePolygonData(param) {
   const points = pointsArray.reduce((pointString, point) => `${pointString} ${point[0] - minX},${point[1] - minY}`, '');
 
   return {
+    key: generateKey('polygon'),
     width: maxX - minX,
     height: maxY - minY,
     points,
@@ -152,4 +154,18 @@ function getLineIntersectionWithVertical({ centerPoint, lineVector, height, widt
   }
 
   return null;
+}
+
+export function getPolygonDataByElement(svgEl) {
+  const polygon = svgEl.querySelector('polygon');
+  return {
+    key: svgEl.dataset.polygonKey,
+    width: +svgEl.getAttribute('width'),
+    height: +svgEl.getAttribute('height'),
+    points: polygon.getAttribute('points'),
+  };
+}
+
+export function getPolygonsDataByElements(svgEls) {
+  return [...svgEls].map((svgEl) => getPolygonDataByElement(svgEl));
 }

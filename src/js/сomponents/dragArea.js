@@ -4,17 +4,12 @@ class DragArea extends HTMLElement {
   connectedCallback() {
     this.style = `
         position: relative;
+        overflow: hidden;
     `;
     this.render();
   }
 
   attributeChangedCallback() {
-    this.render();
-  }
-
-  render() {
-    this.innerHTML = '';
-
     const canvas = document.createElement('canvas');
     const rect = this.getBoundingClientRect();
     canvas.setAttribute('width', rect.width);
@@ -22,9 +17,19 @@ class DragArea extends HTMLElement {
     canvas.style.position = 'absolute';
     canvas.style.bottom = '0px';
     canvas.style.left = '0px';
+
     this.append(canvas);
+    this.render();
+  }
+
+  render() {
+    const canvas = this.querySelector('canvas');
+    if (!canvas) {
+      return;
+    }
 
     const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     const cellSize = parseInt(this.getAttribute('cell-size'));
     if (ctx === null || Number.isNaN(cellSize)) {
       return;

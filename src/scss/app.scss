@@ -10,7 +10,26 @@ body {
 
 polygon.generated-polygon {
     fill: var(--polygon-bg-color);
-    fill-opacity: 0.5;
+    fill-opacity: 0.7;
     stroke: var(--polygon-bg-color);
     cursor: pointer;
+}
+
+work-area {   
+    display: grid;
+    grid-template-rows: 1fr 30px;
+    grid-template-columns: 30px 1fr;
+}
+work-area > work-ruler[align="vertical"] {
+    grid-row: 1 / span 1;
+    grid-column: 1 / span 1;
+}
+work-area > work-ruler[align="horizontal"] {
+    grid-row: 2 / span 1;
+    grid-column: 2 / span 1;
+}
+work-area > drag-area {
+    grid-row: 1 / span 1;
+    grid-column: 2 / span 1;
+    background-color: var(--bg-color);
 }

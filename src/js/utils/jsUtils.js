@@ -42,3 +42,7 @@ export function setDraggedObjectPosition({ clientX, clientY, draggedObject, widt
   draggedObject.style.left = `${clientX + window.scrollX - width / 2}px`;
   draggedObject.style.top = `${clientY + window.scrollY - height / 2}px`;
 }
+
+export function generateKey(prefix) {
+  return `${prefix}-${Math.random().toString(16).slice(2)}`;
+}

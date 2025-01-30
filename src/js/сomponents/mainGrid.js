@@ -106,6 +106,16 @@ class MainGrid extends HTMLElement {
     });
   }
 
+  getPossibleTarget(deepEl) {
+    if (!deepEl) {
+      return null;
+    }
+    if (deepEl.tagName === 'BUFFER-AREA' || deepEl.tagName === 'DRAG-AREA') {
+      return deepEl;
+    }
+    return this.getPossibleTarget(deepEl.parentElement);
+  }
+
   stopDragPolygon(event) {
     const { draggedPolygon } = this;
     if (!draggedPolygon) {
@@ -113,8 +123,9 @@ class MainGrid extends HTMLElement {
     }
 
     draggedPolygon.style.display = 'none';
-    const target = document.elementFromPoint(event.clientX, event.clientY);
-    if (target.tagName !== 'BUFFER-AREA' && target.tagName !== 'WORK-AREA') {
+    const deepTarget = document.elementFromPoint(event.clientX, event.clientY);
+    const target = this.getPossibleTarget(deepTarget);
+    if (!target) {
       draggedPolygon.remove();
       this.originPolygon.style.display = 'block';
       this.clearDragMode();
@@ -127,6 +138,7 @@ class MainGrid extends HTMLElement {
     target.append(draggedPolygon);
     draggedPolygon.style.left = `${draggedRect.left - targetRect.left}px`;
     draggedPolygon.style.top = `${draggedRect.top - targetRect.top}px`;
+    this.originPolygon.remove();
     this.clearDragMode();
   }
 

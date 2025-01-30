@@ -41,8 +41,6 @@ class WorkArea extends HTMLElement {
     this.addEventListener('wheel', this.wheelHandler);
     this.addEventListener('mousedown', this.mouseDownHandler);
     window.addEventListener('resize', this.resizeHandler);
-
-    this.attachShadow({ mode: 'open' });
     this.render();
   }
 
@@ -50,27 +48,7 @@ class WorkArea extends HTMLElement {
     const { cellSize } = this;
     const { step } = WorkArea;
 
-    this.shadowRoot.innerHTML = `
-                <style>
-                  :host(work-area) {   
-                        display: grid;
-                        grid-template-rows: 1fr 30px;
-                        grid-template-columns: 30px 1fr;
-                  }
-                  :host > work-ruler[align="vertical"] {
-                    grid-row: 1 / span 1;
-                    grid-column: 1 / span 1;
-                  }
-                  :host > work-ruler[align="horizontal"] {
-                    grid-row: 2 / span 1;
-                    grid-column: 2 / span 1;
-                  }
-                  :host > drag-area {
-                    grid-row: 1 / span 1;
-                    grid-column: 2 / span 1;
-                    background-color: var(--bg-color);
-                  }
-                </style>
+    this.innerHTML = `
                 <work-ruler cell-size="${cellSize}" step="${step}" start-mark="0" align="horizontal"></work-ruler>
                 <work-ruler cell-size="${cellSize}" step="${step}" start-mark="0" align="vertical"></work-ruler>
                 <drag-area cell-size="${cellSize}"></drag-area>
@@ -96,7 +74,7 @@ class WorkArea extends HTMLElement {
     if (!event.ctrlKey) {
       return;
     }
-    if (event.target?.tagName !== 'WORK-AREA') {
+    if (event.currentTarget?.tagName !== 'WORK-AREA') {
       return;
     }
     this.startDragMouse = [event.clientX, event.clientY];
@@ -117,15 +95,15 @@ class WorkArea extends HTMLElement {
   }
 
   getDragArea() {
-    return this.shadowRoot.querySelector('drag-area');
+    return this.querySelector('drag-area');
   }
 
   getRulerY() {
-    return this.shadowRoot.querySelector('work-ruler[align="vertical"]');
+    return this.querySelector('work-ruler[align="vertical"]');
   }
 
   getRulerX() {
-    return this.shadowRoot.querySelector('work-ruler[align="horizontal"]');
+    return this.querySelector('work-ruler[align="horizontal"]');
   }
 
   doDragging(event) {

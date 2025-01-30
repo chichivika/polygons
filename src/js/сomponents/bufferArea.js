@@ -1,4 +1,4 @@
-import generatePolygonsData from '../utils/polygons';
+import generatePolygonsData, { getPolygonsDataByElements } from '../utils/polygons';
 
 class BufferArea extends HTMLElement {
   static polygonPadding = 5;
@@ -27,17 +27,19 @@ class BufferArea extends HTMLElement {
   }
 
   render() {
-    const { polygonsData } = this;
+    const polygons = this.querySelectorAll('.generated-svg');
+    const polygonsData = getPolygonsDataByElements(polygons);
 
     this.innerHTML = '';
     this.layoutPolygons(polygonsData);
   }
 
   createPolygons() {
-    this.polygonsData = generatePolygonsData({
+    const polygonsData = generatePolygonsData({
       maxHeight: BufferArea.rowHeight,
     });
-    this.render();
+    this.innerHTML = '';
+    this.layoutPolygons(polygonsData);
   }
 
   layoutPolygons(polygonsData) {
@@ -113,6 +115,8 @@ class BufferArea extends HTMLElement {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', polygonData.width);
     svg.setAttribute('height', polygonData.height);
+    svg.dataset.polygonKey = polygonData.key;
+    svg.classList.add('generated-svg');
 
     const polygon = document.createElementNS(svg.namespaceURI, 'polygon');
     polygon.setAttribute('points', polygonData.points);
