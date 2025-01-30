@@ -37,3 +37,8 @@ export function getVectorLength(point) {
 export function numbersAreAlmostEqual(firstNumber, secondNumber) {
   return Math.abs(firstNumber - secondNumber) < 0.000001;
 }
+
+export function setDraggedObjectPosition({ clientX, clientY, draggedObject, width, height }) {
+  draggedObject.style.left = `${clientX + window.scrollX - width / 2}px`;
+  draggedObject.style.top = `${clientY + window.scrollY - height / 2}px`;
+}

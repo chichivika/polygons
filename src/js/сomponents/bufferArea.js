@@ -17,6 +17,7 @@ class BufferArea extends HTMLElement {
   }
 
   connectedCallback() {
+    this.style = 'overflow: hidden';
     window.addEventListener('resize', this.resizeHandler);
     this.render();
   }
@@ -102,6 +103,7 @@ class BufferArea extends HTMLElement {
       polygonEl.style.position = 'absolute';
       polygonEl.style.left = `${widthSum}px`;
       polygonEl.style.top = `${rowNumber * BufferArea.rowHeight + BufferArea.rowTopPadding}px`;
+
       this.append(polygonEl);
       widthSum += data.width + polygonPadding;
     });
@@ -114,6 +116,7 @@ class BufferArea extends HTMLElement {
 
     const polygon = document.createElementNS(svg.namespaceURI, 'polygon');
     polygon.setAttribute('points', polygonData.points);
+    polygon.classList.add('generated-polygon');
 
     svg.append(polygon);
     return svg;

@@ -1,4 +1,24 @@
+import { setDraggedObjectPosition } from '../utils/jsUtils';
+
 class MainGrid extends HTMLElement {
+  draggedPolygon = null;
+
+  originPolygon = null;
+
+  constructor() {
+    super();
+
+    this.mouseDownHandler = (event) => {
+      this.startDragPolygon(event);
+    };
+    this.mouseMoveHandler = (event) => {
+      this.doDragPolygon(event);
+    };
+    this.mouseUpHandler = (event) => {
+      this.stopDragPolygon(event);
+    };
+  }
+
   connectedCallback() {
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
@@ -20,16 +40,102 @@ class MainGrid extends HTMLElement {
               ::slotted(buffer-area) {
                 grid-row: 2 / span 1;
                 min-height: 240px;
+                position: relative;
               }
               ::slotted(work-area) {
                 grid-row: 3 / span 1;
                 background-color: var(--ruler-bg-color);
+                position: relative;
               }
             </style>
             <slot name='toolbar'></slot>
             <slot name='buffer-area'></slot>
             <slot name='work-area'></slot>
           `;
+    this.initEventListeners();
+  }
+
+  initEventListeners() {
+    this.querySelector('buffer-area').addEventListener('mousedown', this.mouseDownHandler);
+    this.querySelector('work-area').addEventListener('mousedown', this.mouseDownHandler);
+  }
+
+  startDragPolygon(event) {
+    if (this.draggedPolygon) {
+      return;
+    }
+    if (!event.target.matches('polygon.generated-polygon')) {
+      return;
+    }
+
+    const polygon = event.target.parentElement;
+    const polygonRect = polygon.getBoundingClientRect();
+    const clonePolygon = polygon.cloneNode(true);
+    setDraggedObjectPosition({
+      clientX: event.clientX,
+      clientY: event.clientY,
+      draggedObject: clonePolygon,
+      width: polygonRect.width,
+      height: polygonRect.height,
+    });
+
+    polygon.style.display = 'none';
+    document.body.append(clonePolygon);
+
+    this.originPolygon = polygon;
+    this.draggedPolygon = clonePolygon;
+
+    document.addEventListener('mousemove', this.mouseMoveHandler);
+    document.addEventListener('mouseup', this.mouseUpHandler);
+  }
+
+  doDragPolygon(event) {
+    const { draggedPolygon } = this;
+    if (!this.draggedPolygon) {
+      return;
+    }
+
+    const draggedRect = draggedPolygon.getBoundingClientRect();
+
+    setDraggedObjectPosition({
+      clientX: event.clientX,
+      clientY: event.clientY,
+      draggedObject: draggedPolygon,
+      width: draggedRect.width,
+      height: draggedRect.height,
+    });
+  }
+
+  stopDragPolygon(event) {
+    const { draggedPolygon } = this;
+    if (!draggedPolygon) {
+      return;
+    }
+
+    draggedPolygon.style.display = 'none';
+    const target = document.elementFromPoint(event.clientX, event.clientY);
+    if (target.tagName !== 'BUFFER-AREA' && target.tagName !== 'WORK-AREA') {
+      draggedPolygon.remove();
+      this.originPolygon.style.display = 'block';
+      this.clearDragMode();
+      return;
+    }
+
+    draggedPolygon.style.display = 'block';
+    const draggedRect = draggedPolygon.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    target.append(draggedPolygon);
+    draggedPolygon.style.left = `${draggedRect.left - targetRect.left}px`;
+    draggedPolygon.style.top = `${draggedRect.top - targetRect.top}px`;
+    this.clearDragMode();
+  }
+
+  clearDragMode() {
+    this.originPolygon = null;
+    this.draggedPolygon = null;
+
+    document.removeEventListener('mousemove', this.mouseMoveHandler);
+    document.removeEventListener('mouseup', this.mouseUpHandler);
   }
 }
 
