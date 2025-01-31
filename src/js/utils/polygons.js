@@ -168,3 +168,14 @@ export function getPolygonDataByElement(polygonEl) {
 export function getPolygonsDataByElements(polygonEls) {
   return [...polygonEls].map((polygonEl) => getPolygonDataByElement(polygonEl));
 }
+
+export function renderPolygon(polygonData) {
+  const polygon = document.createElement('generated-polygon');
+
+  polygon.setAttribute('width', polygonData.width);
+  polygon.setAttribute('height', polygonData.height);
+  polygon.setAttribute('polygon-key', polygonData.key);
+  polygon.setAttribute('points', polygonData.points);
+
+  return polygon;
+}

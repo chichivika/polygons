@@ -39,12 +39,12 @@ class WorkArea extends HTMLElement {
   }
 
   render() {
-    const { cellSize } = this;
+    const { cellSize, shift } = this;
     const { step } = WorkArea;
 
     this.innerHTML = `
-                <work-ruler cell-size="${cellSize}" step="${step}" start-mark="0" align="horizontal"></work-ruler>
-                <work-ruler cell-size="${cellSize}" step="${step}" start-mark="0" align="vertical"></work-ruler>
+                <work-ruler cell-size="${cellSize}" step="${step}" start-mark="0" align="horizontal" shift=${shift[0]}></work-ruler>
+                <work-ruler cell-size="${cellSize}" step="${step}" start-mark="0" align="vertical" shift=${shift[1]}></work-ruler>
                 <work-drag-area cell-size="${cellSize}" step=${step}></work-drag-area>
               `;
   }

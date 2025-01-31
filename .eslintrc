@@ -23,7 +23,9 @@
     "object-curly-newline": "off",
     "radix": "off",
     "no-continue": "off",
-    "no-param-reassign": "warn"
+    "no-param-reassign": "warn",
+    "class-methods-use-this": "warn",
+    "operator-linebreak": "off"
   },
   "parserOptions": {
     "ecmaVersion": 2022

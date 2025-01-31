@@ -1,4 +1,5 @@
-import generatePolygonsData, { getPolygonDataByElement } from '../utils/polygons';
+import generatePolygonsData, { getPolygonDataByElement, renderPolygon } from '../utils/polygons';
+import store from '../utils/store';
 
 class BufferArea extends HTMLElement {
   static polygonPadding = 5;
@@ -6,8 +7,6 @@ class BufferArea extends HTMLElement {
   static rowHeight = 110;
 
   static rowTopPadding = 5;
-
-  polygonsData = [];
 
   constructor() {
     super();
@@ -25,15 +24,15 @@ class BufferArea extends HTMLElement {
   }
 
   render() {
-    const { polygonsData } = this;
+    const { bufferPolygons } = store;
 
     this.innerHTML = '';
-    this.layoutPolygons(polygonsData);
+    this.layoutPolygons(bufferPolygons);
   }
 
   appendPolygon(polygonEl) {
     const polygonData = getPolygonDataByElement(polygonEl);
-    this.polygonsData.push(polygonData);
+    store.bufferPolygons.push(polygonData);
 
     const polygonRect = polygonEl.getBoundingClientRect();
     const targetRect = this.getBoundingClientRect();
@@ -46,7 +45,7 @@ class BufferArea extends HTMLElement {
 
   removePolygon(polygonEl) {
     const polygonData = getPolygonDataByElement(polygonEl);
-    this.polygonsData = this.polygonsData.filter((data) => data.key !== polygonData.key);
+    store.bufferPolygons = store.bufferPolygons.filter((data) => data.key !== polygonData.key);
     polygonEl.remove();
   }
 
@@ -54,7 +53,7 @@ class BufferArea extends HTMLElement {
     const polygonsData = generatePolygonsData({
       maxHeight: BufferArea.rowHeight,
     });
-    this.polygonsData = polygonsData;
+    store.bufferPolygons = polygonsData;
 
     this.innerHTML = '';
     this.layoutPolygons(polygonsData);
@@ -119,7 +118,7 @@ class BufferArea extends HTMLElement {
 
     let widthSum = padding + polygonPadding;
     polygonsData.forEach((data) => {
-      const polygonEl = BufferArea.renderPolygon(data);
+      const polygonEl = renderPolygon(data);
       polygonEl.style.position = 'absolute';
       polygonEl.style.left = `${widthSum}px`;
       polygonEl.style.top = `${rowNumber * BufferArea.rowHeight + BufferArea.rowTopPadding}px`;
@@ -127,17 +126,6 @@ class BufferArea extends HTMLElement {
       this.append(polygonEl);
       widthSum += data.width + polygonPadding;
     });
-  }
-
-  static renderPolygon(polygonData) {
-    const polygon = document.createElement('generated-polygon');
-
-    polygon.setAttribute('width', polygonData.width);
-    polygon.setAttribute('height', polygonData.height);
-    polygon.setAttribute('polygon-key', polygonData.key);
-    polygon.setAttribute('points', polygonData.points);
-
-    return polygon;
   }
 }
 

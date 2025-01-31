@@ -1,44 +1,99 @@
-import { getPolygonDataByElement } from '../utils/polygons';
+import { getPolygonDataByElement, renderPolygon } from '../utils/polygons';
+import WorkArea from './workArea';
+import store from '../utils/store';
 
 class WorkDragArea extends HTMLElement {
   shift = [0, 0];
 
-  polygonsData = [];
+  canvasEl = null;
+
+  polygonsEl = null;
 
   connectedCallback() {
-    this.style = `
-        position: relative;
-        overflow: hidden;
-    `;
+    if (!this.canvasEl) {
+      const canvas = document.createElement('canvas');
+      const rect = this.getBoundingClientRect();
+      canvas.setAttribute('width', rect.width);
+      canvas.setAttribute('height', rect.height);
+      canvas.style.position = 'absolute';
+      canvas.style.bottom = '0px';
+      canvas.style.left = '0px';
+      this.canvasEl = canvas;
+      this.append(canvas);
+    }
+    if (!this.polygonsEl) {
+      const polygonsEl = document.createElement('div');
+      this.append(polygonsEl);
+      this.polygonsEl = polygonsEl;
+    }
     this.render();
   }
 
   attributeChangedCallback() {
-    const canvas = document.createElement('canvas');
-    const rect = this.getBoundingClientRect();
-    canvas.setAttribute('width', rect.width);
-    canvas.setAttribute('height', rect.height);
-    canvas.style.position = 'absolute';
-    canvas.style.bottom = '0px';
-    canvas.style.left = '0px';
-
-    this.append(canvas);
     this.render();
   }
 
   render() {
-    const canvas = this.querySelector('canvas');
-    if (!canvas) {
+    const { canvasEl } = this;
+    if (!canvasEl) {
       return;
     }
 
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const ctx = canvasEl.getContext('2d');
+    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
     const cellSize = parseInt(this.getAttribute('cell-size'));
     if (ctx === null || Number.isNaN(cellSize)) {
       return;
     }
-    this.drawCells({ ctx, cellSize, width: canvas.width, height: canvas.height });
+    this.drawCells({ ctx, cellSize, width: canvasEl.width, height: canvasEl.height });
+
+    this.renderPolygons();
+  }
+
+  renderPolygons() {
+    const { polygonsEl } = this;
+    const { workPolygons } = store;
+
+    const newChildren = [];
+    const viewPolygonsData = workPolygons.filter((data) => this.checkPolygonInView(data));
+    viewPolygonsData.forEach((data) => {
+      const polygonEl = renderPolygon(data);
+      polygonEl.style.position = 'absolute';
+
+      const position = this.getPositionByWorkCoordinates(data);
+      polygonEl.style.left = `${position.left}px`;
+      polygonEl.style.top = `${position.top}px`;
+      polygonEl.style.transform = `scale(${this.getScale()})`;
+
+      newChildren.push(polygonEl);
+    });
+
+    polygonsEl.replaceChildren(...newChildren);
+  }
+
+  checkPolygonInView(polygonData) {
+    const polygonLeft = polygonData.workLeft;
+    const polygonTop = polygonData.workTop;
+
+    const rect = this.getBoundingClientRect();
+    const { workLeft: minLeft, workTop: minTop } = this.getWorkCoordinatesByPosition({ left: 0, top: rect.height });
+    const { workLeft: maxLeft, workTop: maxTop } = this.getWorkCoordinatesByPosition({ left: rect.width, top: 0 });
+
+    const scale = this.getScale();
+    const polygonRight = polygonLeft + polygonData.width * scale;
+    const polygonBottom = polygonTop - polygonData.height * scale;
+
+    const isSeenInHorizontal = (polygonLeft <= maxLeft && polygonLeft >= minLeft) ||
+    (polygonRight <= maxLeft && polygonRight >= minLeft);
+    const isSeenInVertical = (polygonTop <= maxTop && polygonTop >= minTop) ||
+    (polygonBottom <= maxTop && polygonBottom >= minTop);
+
+    return isSeenInHorizontal && isSeenInVertical;
+  }
+
+  getScale() {
+    const cellSize = this.getAttribute('cell-size');
+    return cellSize / WorkArea.originCellSize;
   }
 
   appendPolygon(polygonEl) {
@@ -53,14 +108,14 @@ class WorkDragArea extends HTMLElement {
     polygonEl.style.top = `${top}px`;
 
     const workCoordinates = this.getWorkCoordinatesByPosition({ left, top });
-    this.polygonsData.push({ ...polygonData, ...workCoordinates });
+    store.workPolygons.push({ ...polygonData, ...workCoordinates });
 
-    this.append(polygonEl);
+    this.polygonsEl.append(polygonEl);
   }
 
   removePolygon(polygonEl) {
     const polygonData = getPolygonDataByElement(polygonEl);
-    this.polygonsData = this.polygonsData.filter((data) => data.key !== polygonData.key);
+    store.workPolygons = store.workPolygons.filter((data) => data.key !== polygonData.key);
     polygonEl.remove();
   }
 
@@ -74,11 +129,27 @@ class WorkDragArea extends HTMLElement {
     };
   }
 
+  getPositionByWorkCoordinates({ workLeft, workTop }) {
+    const rect = this.getBoundingClientRect();
+    const { shift } = this;
+
+    return {
+      left: this.fromCoordinateToPixels(workLeft) + shift[0],
+      top: rect.height + shift[1] - this.fromCoordinateToPixels(workTop),
+    };
+  }
+
   fromPixelsToCoordinate(pxNumber) {
     const cellSize = Number(this.getAttribute('cell-size'));
     const step = Number(this.getAttribute('step'));
 
     return (pxNumber / cellSize) * step;
+  }
+
+  fromCoordinateToPixels(coordinate) {
+    const cellSize = Number(this.getAttribute('cell-size'));
+    const step = Number(this.getAttribute('step'));
+    return (coordinate * cellSize) / step;
   }
 
   drawCells({ ctx, cellSize, width, height }) {
