@@ -1,3 +1,5 @@
+import store from '../utils/store';
+
 class WorkArea extends HTMLElement {
   static minCellSize = 20;
 
@@ -9,14 +11,8 @@ class WorkArea extends HTMLElement {
 
   startDragMouse = null;
 
-  shift = [0, 0];
-
-  cellSize;
-
   constructor() {
     super();
-
-    this.cellSize = WorkArea.originCellSize;
 
     this.wheelHandler = this.wheel.bind(this);
     this.resizeHandler = this.resize.bind(this);
@@ -39,18 +35,16 @@ class WorkArea extends HTMLElement {
   }
 
   render() {
-    const { cellSize, shift } = this;
+    const { shift } = store;
     const { step } = WorkArea;
+    const cellSize = WorkArea.getCellSize();
 
     this.innerHTML = `
-                <work-ruler cell-size="${cellSize}" step="${step}" start-mark="0" align="horizontal" shift=${shift[0]}></work-ruler>
-                <work-ruler cell-size="${cellSize}" step="${step}" start-mark="0" align="vertical" shift=${shift[1]}></work-ruler>
-                <work-drag-area cell-size="${cellSize}" step=${step} shift-x=${shift[0]} shift-y=${shift[1]}></work-drag-area>
+                <work-ruler cell-size="${cellSize}" step="${step}" align="horizontal" shift=${shift[0]}></work-ruler>
+                <work-ruler cell-size="${cellSize}" step="${step}" align="vertical" shift=${shift[1]}></work-ruler>
+                <work-drag-area cell-size="${cellSize}" origin-cell-size=${WorkArea.originCellSize} 
+                                shift-x=${shift[0]} shift-y=${shift[1]}></work-drag-area>
               `;
-  }
-
-  getScale() {
-    return this.cellSize / WorkArea.originCellSize;
   }
 
   wheel(event) {
@@ -60,8 +54,14 @@ class WorkArea extends HTMLElement {
     event.preventDefault();
 
     const sign = event.deltaY < 0 ? 1 : -1;
-    this.cellSize = Math.min(Math.max(this.cellSize + sign * 5, WorkArea.minCellSize), WorkArea.maxCellSize);
+    const cellSize = WorkArea.getCellSize();
+    const newCellSize = Math.min(Math.max(cellSize + sign * 5, WorkArea.minCellSize), WorkArea.maxCellSize);
+    store.scale = newCellSize / WorkArea.originCellSize;
     this.render();
+  }
+
+  static getCellSize() {
+    return WorkArea.originCellSize * store.scale;
   }
 
   resize() {
@@ -82,10 +82,10 @@ class WorkArea extends HTMLElement {
   }
 
   stopDragging(event) {
-    const { cellSize } = this;
+    const cellSize = WorkArea.getCellSize();
     const deltaX = event.clientX - this.startDragMouse[0];
     const deltaY = event.clientY - this.startDragMouse[1];
-    this.shift = [this.shift[0] + deltaX / cellSize, this.shift[1] + deltaY / cellSize];
+    store.shift = [store.shift[0] + deltaX / cellSize, store.shift[1] + deltaY / cellSize];
 
     this.startDragMouse = null;
     document.removeEventListener('mousemove', this.mouseMoveHandler);
@@ -110,10 +110,10 @@ class WorkArea extends HTMLElement {
       return;
     }
 
-    const { cellSize } = this;
+    const cellSize = WorkArea.getCellSize();
     const deltaX = event.clientX - this.startDragMouse[0];
     const deltaY = event.clientY - this.startDragMouse[1];
-    const newShift = [this.shift[0] + deltaX / cellSize, this.shift[1] + deltaY / cellSize];
+    const newShift = [store.shift[0] + deltaX / cellSize, store.shift[1] + deltaY / cellSize];
     const dragArea = this.getDragArea();
 
     dragArea.setAttribute('shift-x', newShift[0]);

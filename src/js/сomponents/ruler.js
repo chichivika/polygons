@@ -13,8 +13,7 @@ class Ruler extends HTMLElement {
   render() {
     const cellSize = parseInt(this.getAttribute('cell-size'));
     const step = parseInt(this.getAttribute('step'));
-    const startMark = parseInt(this.getAttribute('start-mark'));
-    if (Number.isNaN(cellSize) || Number.isNaN(step) || Number.isNaN(startMark)) {
+    if (Number.isNaN(cellSize) || Number.isNaN(step)) {
       return;
     }
 
@@ -70,7 +69,7 @@ class Ruler extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['cell-size', 'step', 'start-mark', 'vertical', 'shift'];
+    return ['cell-size', 'step', 'vertical', 'shift'];
   }
 }
 

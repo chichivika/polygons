@@ -1,4 +1,5 @@
 import { setDraggedObjectPosition } from '../utils/jsUtils';
+import store from '../utils/store';
 
 class DNDWrapper extends HTMLElement {
   draggedPolygon = null;
@@ -80,7 +81,7 @@ class DNDWrapper extends HTMLElement {
 
     let scale = 1;
     if (targetFrom === this.getBufferArea()) {
-      scale = this.getWorkArea().getScale();
+      scale = store.scale;
       clonePolygon.style.transform = `scale(${scale}, ${scale})`;
     }
 

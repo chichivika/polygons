@@ -1,3 +1,5 @@
+import store from '../utils/store';
+
 class Toolbar extends HTMLElement {
   connectedCallback() {
     this.attachShadow({ mode: 'open' });
@@ -52,6 +54,12 @@ class Toolbar extends HTMLElement {
     switch (actionName) {
       case 'create':
         Toolbar.doCreateAction();
+        break;
+      case 'save':
+        store.saveData();
+        break;
+      case 'clear':
+        store.clearData();
         break;
       default:
         break;

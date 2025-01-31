@@ -1,5 +1,4 @@
 import { getPolygonDataByElement, renderPolygon } from '../utils/polygons';
-import WorkArea from './workArea';
 import store from '../utils/store';
 
 class WorkDragArea extends HTMLElement {
@@ -77,8 +76,9 @@ class WorkDragArea extends HTMLElement {
     const { workLeft: minLeft, workTop: minTop } = this.getWorkCoordinatesByPosition({ left: 0, top: rect.height });
     const { workLeft: maxLeft, workTop: maxTop } = this.getWorkCoordinatesByPosition({ left: rect.width, top: 0 });
 
-    const polygonRight = polygonLeft + polygonData.width / WorkArea.originCellSize;
-    const polygonBottom = polygonTop - polygonData.height / WorkArea.originCellSize;
+    const originCellSize = this.getAttribute('origin-cell-size');
+    const polygonRight = polygonLeft + polygonData.width / originCellSize;
+    const polygonBottom = polygonTop - polygonData.height / originCellSize;
 
     const isSeenInHorizontal = (polygonLeft <= maxLeft && polygonLeft >= minLeft) ||
     (polygonRight <= maxLeft && polygonRight >= minLeft);
@@ -90,7 +90,8 @@ class WorkDragArea extends HTMLElement {
 
   getScale() {
     const cellSize = this.getAttribute('cell-size');
-    return cellSize / WorkArea.originCellSize;
+    const originCellSize = this.getAttribute('origin-cell-size');
+    return cellSize / originCellSize;
   }
 
   appendPolygon(polygonEl) {
@@ -179,7 +180,7 @@ class WorkDragArea extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['cell-size', 'shift-x', 'shift-y'];
+    return ['cell-size', 'origin-cell-size', 'shift-x', 'shift-y'];
   }
 }
 
