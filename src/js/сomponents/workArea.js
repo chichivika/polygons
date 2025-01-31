@@ -45,7 +45,7 @@ class WorkArea extends HTMLElement {
     this.innerHTML = `
                 <work-ruler cell-size="${cellSize}" step="${step}" start-mark="0" align="horizontal" shift=${shift[0]}></work-ruler>
                 <work-ruler cell-size="${cellSize}" step="${step}" start-mark="0" align="vertical" shift=${shift[1]}></work-ruler>
-                <work-drag-area cell-size="${cellSize}" step=${step}></work-drag-area>
+                <work-drag-area cell-size="${cellSize}" step=${step} shift-x=${shift[0]} shift-y=${shift[1]}></work-drag-area>
               `;
   }
 
@@ -82,9 +82,10 @@ class WorkArea extends HTMLElement {
   }
 
   stopDragging(event) {
+    const { cellSize } = this;
     const deltaX = event.clientX - this.startDragMouse[0];
     const deltaY = event.clientY - this.startDragMouse[1];
-    this.shift = [this.shift[0] + deltaX, this.shift[1] + deltaY];
+    this.shift = [this.shift[0] + deltaX / cellSize, this.shift[1] + deltaY / cellSize];
 
     this.startDragMouse = null;
     document.removeEventListener('mousemove', this.mouseMoveHandler);
@@ -109,11 +110,14 @@ class WorkArea extends HTMLElement {
       return;
     }
 
+    const { cellSize } = this;
     const deltaX = event.clientX - this.startDragMouse[0];
     const deltaY = event.clientY - this.startDragMouse[1];
-    const newShift = [this.shift[0] + deltaX, this.shift[1] + deltaY];
+    const newShift = [this.shift[0] + deltaX / cellSize, this.shift[1] + deltaY / cellSize];
     const dragArea = this.getDragArea();
-    dragArea.setShift(newShift);
+
+    dragArea.setAttribute('shift-x', newShift[0]);
+    dragArea.setAttribute('shift-y', newShift[1]);
 
     this.getRulerX().setAttribute('shift', newShift[0]);
     this.getRulerY().setAttribute('shift', newShift[1]);

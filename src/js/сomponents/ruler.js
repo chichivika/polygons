@@ -33,13 +33,13 @@ class Ruler extends HTMLElement {
 
   renderMarks({ marksCount, step, cellSize, vertical }) {
     const shift = this.getShift();
-    const ratioShift = shift % cellSize;
-    const integerShift = shift > 0 ? Math.floor(shift / cellSize) : Math.ceil(shift / cellSize);
+    const ratioShift = shift % 1;
+    const integerShift = Math.trunc(shift);
     const shiftSign = vertical ? 1 : -1;
 
     for (let i = 0; i <= marksCount; ++i) {
       const edgePadding = '3px';
-      const position = i * cellSize - shiftSign * ratioShift;
+      const position = i * cellSize - shiftSign * ratioShift * cellSize;
       if (position < 0) {
         continue;
       }

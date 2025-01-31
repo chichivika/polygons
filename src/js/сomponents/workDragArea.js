@@ -3,8 +3,6 @@ import WorkArea from './workArea';
 import store from '../utils/store';
 
 class WorkDragArea extends HTMLElement {
-  shift = [0, 0];
-
   canvasEl = null;
 
   polygonsEl = null;
@@ -79,9 +77,8 @@ class WorkDragArea extends HTMLElement {
     const { workLeft: minLeft, workTop: minTop } = this.getWorkCoordinatesByPosition({ left: 0, top: rect.height });
     const { workLeft: maxLeft, workTop: maxTop } = this.getWorkCoordinatesByPosition({ left: rect.width, top: 0 });
 
-    const scale = this.getScale();
-    const polygonRight = polygonLeft + polygonData.width * scale;
-    const polygonBottom = polygonTop - polygonData.height * scale;
+    const polygonRight = polygonLeft + polygonData.width / WorkArea.originCellSize;
+    const polygonBottom = polygonTop - polygonData.height / WorkArea.originCellSize;
 
     const isSeenInHorizontal = (polygonLeft <= maxLeft && polygonLeft >= minLeft) ||
     (polygonRight <= maxLeft && polygonRight >= minLeft);
@@ -121,46 +118,51 @@ class WorkDragArea extends HTMLElement {
 
   getWorkCoordinatesByPosition({ left, top }) {
     const rect = this.getBoundingClientRect();
-    const { shift } = this;
+    const cellSize = this.getAttribute('cell-size');
+    const shiftX = this.getAttribute('shift-x');
+    const shiftY = this.getAttribute('shift-y');
 
     return {
-      workLeft: this.fromPixelsToCoordinate(left - shift[0]),
-      workTop: this.fromPixelsToCoordinate(rect.height - top + shift[1]),
+      workLeft: this.fromPixelsToCoordinate(left - shiftX * cellSize),
+      workTop: this.fromPixelsToCoordinate(rect.height - top + shiftY * cellSize),
     };
   }
 
   getPositionByWorkCoordinates({ workLeft, workTop }) {
     const rect = this.getBoundingClientRect();
-    const { shift } = this;
+    const shiftX = this.getAttribute('shift-x');
+    const shiftY = this.getAttribute('shift-y');
+    const cellSize = this.getAttribute('cell-size');
 
     return {
-      left: this.fromCoordinateToPixels(workLeft) + shift[0],
-      top: rect.height + shift[1] - this.fromCoordinateToPixels(workTop),
+      left: this.fromCoordinateToPixels(workLeft) + shiftX * cellSize,
+      top: rect.height + shiftY * cellSize - this.fromCoordinateToPixels(workTop),
     };
   }
 
   fromPixelsToCoordinate(pxNumber) {
     const cellSize = Number(this.getAttribute('cell-size'));
-    const step = Number(this.getAttribute('step'));
 
-    return (pxNumber / cellSize) * step;
+    return (pxNumber / cellSize);
   }
 
   fromCoordinateToPixels(coordinate) {
     const cellSize = Number(this.getAttribute('cell-size'));
-    const step = Number(this.getAttribute('step'));
-    return (coordinate * cellSize) / step;
+    return (coordinate * cellSize);
   }
 
   drawCells({ ctx, cellSize, width, height }) {
     ctx.strokeStyle = 'lightgrey';
-    const shiftX = this.shift[0] % cellSize;
-    const shiftY = this.shift[1] % cellSize;
+
+    const shiftX = this.getAttribute('shift-x');
+    const shiftY = this.getAttribute('shift-y');
+    const cellshiftX = (shiftX % 1) * cellSize;
+    const cellshiftY = (shiftY % 1) * cellSize;
 
     const horizontalLinesCount = Math.floor(height / cellSize);
     for (let i = 0; i <= horizontalLinesCount; ++i) {
       ctx.beginPath();
-      const y = shiftY + height - i * cellSize;
+      const y = cellshiftY + height - i * cellSize;
       ctx.moveTo(0, y);
       ctx.lineTo(width, y);
       ctx.stroke();
@@ -169,36 +171,15 @@ class WorkDragArea extends HTMLElement {
     const verticalLinesCount = Math.floor(width / cellSize);
     for (let i = 0; i <= verticalLinesCount; ++i) {
       ctx.beginPath();
-      const x = shiftX + i * cellSize;
+      const x = cellshiftX + i * cellSize;
       ctx.moveTo(x, 0);
       ctx.lineTo(x, height);
       ctx.stroke();
     }
   }
 
-  getCellByMouse(mouseX, mouseY) {
-    const rect = this.getBoundingClientRect();
-    if (mouseX < rect.left || mouseX > rect.left + rect.width) {
-      return null;
-    }
-    if (mouseY < rect.top || mouseY > rect.top + rect.height) {
-      return null;
-    }
-
-    const cellSize = this.getAttribute('cell-size');
-    const rowIndex = Math.floor((mouseX - rect.left) / cellSize);
-    const colIndex = Math.floor((rect.top + rect.height - mouseY) / cellSize);
-
-    return [rowIndex, colIndex];
-  }
-
-  setShift(newShift) {
-    this.shift = newShift;
-    this.render();
-  }
-
   static get observedAttributes() {
-    return ['cell-size', 'step'];
+    return ['cell-size', 'shift-x', 'shift-y'];
   }
 }
 
