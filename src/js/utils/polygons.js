@@ -156,16 +156,15 @@ function getLineIntersectionWithVertical({ centerPoint, lineVector, height, widt
   return null;
 }
 
-export function getPolygonDataByElement(svgEl) {
-  const polygon = svgEl.querySelector('polygon');
+export function getPolygonDataByElement(polygonEl) {
   return {
-    key: svgEl.dataset.polygonKey,
-    width: +svgEl.getAttribute('width'),
-    height: +svgEl.getAttribute('height'),
-    points: polygon.getAttribute('points'),
+    key: polygonEl.getAttribute('polygon-key'),
+    width: Number(polygonEl.getAttribute('width')),
+    height: Number(polygonEl.getAttribute('height')),
+    points: polygonEl.getAttribute('points'),
   };
 }
 
-export function getPolygonsDataByElements(svgEls) {
-  return [...svgEls].map((svgEl) => getPolygonDataByElement(svgEl));
+export function getPolygonsDataByElements(polygonEls) {
+  return [...polygonEls].map((polygonEl) => getPolygonDataByElement(polygonEl));
 }

@@ -1,34 +1,28 @@
 class WorkArea extends HTMLElement {
-  static minCellSize = 25;
+  static minCellSize = 20;
 
   static maxCellSize = 70;
 
   static step = 10;
 
+  static originCellSize = 30;
+
   startDragMouse = null;
 
   shift = [0, 0];
 
-  cellSize = 30;
+  cellSize;
 
   constructor() {
     super();
 
-    this.wheelHandler = (event) => {
-      this.wheel(event);
-    };
-    this.resizeHandler = (event) => {
-      this.resize(event);
-    };
-    this.mouseDownHandler = (event) => {
-      this.startDragging(event);
-    };
-    this.mouseMoveHandler = (event) => {
-      this.doDragging(event);
-    };
-    this.mouseUpHandler = (event) => {
-      this.stopDragging(event);
-    };
+    this.cellSize = WorkArea.originCellSize;
+
+    this.wheelHandler = this.wheel.bind(this);
+    this.resizeHandler = this.resize.bind(this);
+    this.mouseDownHandler = this.startDragging.bind(this);
+    this.mouseMoveHandler = this.doDragging.bind(this);
+    this.mouseUpHandler = this.stopDragging.bind(this);
   }
 
   disconnectedCallback() {
@@ -51,8 +45,12 @@ class WorkArea extends HTMLElement {
     this.innerHTML = `
                 <work-ruler cell-size="${cellSize}" step="${step}" start-mark="0" align="horizontal"></work-ruler>
                 <work-ruler cell-size="${cellSize}" step="${step}" start-mark="0" align="vertical"></work-ruler>
-                <drag-area cell-size="${cellSize}"></drag-area>
+                <work-drag-area cell-size="${cellSize}" step=${step}></work-drag-area>
               `;
+  }
+
+  getScale() {
+    return this.cellSize / WorkArea.originCellSize;
   }
 
   wheel(event) {
@@ -95,7 +93,7 @@ class WorkArea extends HTMLElement {
   }
 
   getDragArea() {
-    return this.querySelector('drag-area');
+    return this.querySelector('work-drag-area');
   }
 
   getRulerY() {

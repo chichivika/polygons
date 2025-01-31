@@ -1,4 +1,4 @@
-import generatePolygonsData, { getPolygonsDataByElements } from '../utils/polygons';
+import generatePolygonsData, { getPolygonDataByElement } from '../utils/polygons';
 
 class BufferArea extends HTMLElement {
   static polygonPadding = 5;
@@ -7,17 +7,15 @@ class BufferArea extends HTMLElement {
 
   static rowTopPadding = 5;
 
+  polygonsData = [];
+
   constructor() {
     super();
-    this.polygonsData = [];
 
-    this.resizeHandler = () => {
-      this.render();
-    };
+    this.resizeHandler = this.render.bind(this);
   }
 
   connectedCallback() {
-    this.style = 'overflow: hidden';
     window.addEventListener('resize', this.resizeHandler);
     this.render();
   }
@@ -27,17 +25,37 @@ class BufferArea extends HTMLElement {
   }
 
   render() {
-    const polygons = this.querySelectorAll('.generated-svg');
-    const polygonsData = getPolygonsDataByElements(polygons);
+    const { polygonsData } = this;
 
     this.innerHTML = '';
     this.layoutPolygons(polygonsData);
+  }
+
+  appendPolygon(polygonEl) {
+    const polygonData = getPolygonDataByElement(polygonEl);
+    this.polygonsData.push(polygonData);
+
+    const polygonRect = polygonEl.getBoundingClientRect();
+    const targetRect = this.getBoundingClientRect();
+
+    polygonEl.style.left = `${polygonRect.left - targetRect.left}px`;
+    polygonEl.style.top = `${polygonRect.top - targetRect.top}px`;
+
+    this.append(polygonEl);
+  }
+
+  removePolygon(polygonEl) {
+    const polygonData = getPolygonDataByElement(polygonEl);
+    this.polygonsData = this.polygonsData.filter((data) => data.key !== polygonData.key);
+    polygonEl.remove();
   }
 
   createPolygons() {
     const polygonsData = generatePolygonsData({
       maxHeight: BufferArea.rowHeight,
     });
+    this.polygonsData = polygonsData;
+
     this.innerHTML = '';
     this.layoutPolygons(polygonsData);
   }
@@ -112,18 +130,14 @@ class BufferArea extends HTMLElement {
   }
 
   static renderPolygon(polygonData) {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('width', polygonData.width);
-    svg.setAttribute('height', polygonData.height);
-    svg.dataset.polygonKey = polygonData.key;
-    svg.classList.add('generated-svg');
+    const polygon = document.createElement('generated-polygon');
 
-    const polygon = document.createElementNS(svg.namespaceURI, 'polygon');
+    polygon.setAttribute('width', polygonData.width);
+    polygon.setAttribute('height', polygonData.height);
+    polygon.setAttribute('polygon-key', polygonData.key);
     polygon.setAttribute('points', polygonData.points);
-    polygon.classList.add('generated-polygon');
 
-    svg.append(polygon);
-    return svg;
+    return polygon;
   }
 }
 

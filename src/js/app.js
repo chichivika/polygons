@@ -4,13 +4,19 @@ import MainGrid from './сomponents/mainGrid';
 import BufferArea from './сomponents/bufferArea';
 import WorkArea from './сomponents/workArea';
 import Ruler from './сomponents/ruler';
-import DragArea from './сomponents/dragArea';
+import WorkDragArea from './сomponents/workDragArea';
+import DNDWrapper from './сomponents/dndWraper';
+import GeneratedPolygon from './сomponents/generatedPolygon';
 
 customElements.define('app-toolbar', Toolbar);
 customElements.define('main-grid', MainGrid);
+customElements.define('dnd-wrapper', DNDWrapper);
+
 customElements.define('buffer-area', BufferArea);
+customElements.define('generated-polygon', GeneratedPolygon);
+
 customElements.define('work-area', WorkArea);
 customElements.define('work-ruler', Ruler);
-customElements.define('drag-area', DragArea);
+customElements.define('work-drag-area', WorkDragArea);
 
 document.addEventListener('DOMContentLoaded', () => {});

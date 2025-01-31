@@ -1,5 +1,9 @@
-class DragArea extends HTMLElement {
+import { getPolygonDataByElement } from '../utils/polygons';
+
+class WorkDragArea extends HTMLElement {
   shift = [0, 0];
+
+  polygonsData = [];
 
   connectedCallback() {
     this.style = `
@@ -35,6 +39,46 @@ class DragArea extends HTMLElement {
       return;
     }
     this.drawCells({ ctx, cellSize, width: canvas.width, height: canvas.height });
+  }
+
+  appendPolygon(polygonEl) {
+    const polygonData = getPolygonDataByElement(polygonEl);
+
+    const polygonRect = polygonEl.getBoundingClientRect();
+    const targetRect = this.getBoundingClientRect();
+
+    const left = polygonRect.left - targetRect.left;
+    const top = polygonRect.top - targetRect.top;
+    polygonEl.style.left = `${left}px`;
+    polygonEl.style.top = `${top}px`;
+
+    const workCoordinates = this.getWorkCoordinatesByPosition({ left, top });
+    this.polygonsData.push({ ...polygonData, ...workCoordinates });
+
+    this.append(polygonEl);
+  }
+
+  removePolygon(polygonEl) {
+    const polygonData = getPolygonDataByElement(polygonEl);
+    this.polygonsData = this.polygonsData.filter((data) => data.key !== polygonData.key);
+    polygonEl.remove();
+  }
+
+  getWorkCoordinatesByPosition({ left, top }) {
+    const rect = this.getBoundingClientRect();
+    const { shift } = this;
+
+    return {
+      workLeft: this.fromPixelsToCoordinate(left - shift[0]),
+      workTop: this.fromPixelsToCoordinate(rect.height - top + shift[1]),
+    };
+  }
+
+  fromPixelsToCoordinate(pxNumber) {
+    const cellSize = Number(this.getAttribute('cell-size'));
+    const step = Number(this.getAttribute('step'));
+
+    return (pxNumber / cellSize) * step;
   }
 
   drawCells({ ctx, cellSize, width, height }) {
@@ -83,8 +127,8 @@ class DragArea extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['cell-size'];
+    return ['cell-size', 'step'];
   }
 }
 
-export default DragArea;
+export default WorkDragArea;
