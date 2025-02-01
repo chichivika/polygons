@@ -1,19 +1,17 @@
 import { generateKey } from './jsUtils';
 import generatePolygonsData from './polygons';
 
-const initialData = {
-  scale: 1,
-  shift: [0, 0],
-  bufferPolygons: [],
-  workPolygons: [],
-};
-
 function getInitialData() {
-  return { ...initialData };
+  return {
+    scale: 1,
+    shift: [0, 0],
+    bufferPolygons: [],
+    workPolygons: [],
+  };
 }
 
 function getStoreKeys() {
-  return [...Object.keys(initialData)];
+  return [...Object.keys(getInitialData())];
 }
 
 function getInitialStoreParam() {
