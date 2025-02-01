@@ -1,5 +1,5 @@
-import { getPolygonDataByElement, renderPolygon } from '../utils/polygons';
-import store from '../utils/store';
+import { getPolygonDataByElement, renderPolygon } from '../../utils/polygons';
+import store from '../../utils/store';
 
 class WorkDragArea extends HTMLElement {
   canvasEl = null;
@@ -160,7 +160,7 @@ class WorkDragArea extends HTMLElement {
     const cellshiftX = (shiftX % 1) * cellSize;
     const cellshiftY = (shiftY % 1) * cellSize;
 
-    const horizontalLinesCount = Math.floor(height / cellSize);
+    const horizontalLinesCount = Math.ceil(height / cellSize);
     for (let i = 0; i <= horizontalLinesCount; ++i) {
       ctx.beginPath();
       const y = cellshiftY + height - i * cellSize;

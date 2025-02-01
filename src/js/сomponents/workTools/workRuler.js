@@ -1,12 +1,5 @@
-class Ruler extends HTMLElement {
+class WorkRuler extends HTMLElement {
   connectedCallback() {
-    this.style = `
-        position: relative;
-        overflow: hidden;
-        font-size: 10px;
-        font-weight: bold;
-        user-select: none;
-    `;
     this.render();
   }
 
@@ -21,7 +14,7 @@ class Ruler extends HTMLElement {
     const rect = this.getBoundingClientRect();
     const vertical = this.getAttribute('align') === 'vertical';
     const fullSize = vertical ? rect.height : rect.width;
-    const marksCount = Math.floor(fullSize / cellSize);
+    const marksCount = Math.ceil(fullSize / cellSize);
     this.renderMarks({
       vertical,
       marksCount,
@@ -73,4 +66,4 @@ class Ruler extends HTMLElement {
   }
 }
 
-export default Ruler;
+export default WorkRuler;

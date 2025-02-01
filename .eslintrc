@@ -25,7 +25,8 @@
     "no-continue": "off",
     "no-param-reassign": "warn",
     "class-methods-use-this": "warn",
-    "operator-linebreak": "off"
+    "operator-linebreak": "off",
+    "no-restricted-globals": "warn",
   },
   "parserOptions": {
     "ecmaVersion": 2022

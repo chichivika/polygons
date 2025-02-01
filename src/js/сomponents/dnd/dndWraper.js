@@ -1,5 +1,5 @@
-import { setDraggedObjectPosition } from '../utils/jsUtils';
-import store from '../utils/store';
+import { setDraggedObjectPosition } from '../../utils/jsUtils';
+import store from '../../utils/store';
 
 class DNDWrapper extends HTMLElement {
   draggedPolygon = null;
@@ -15,39 +15,32 @@ class DNDWrapper extends HTMLElement {
   constructor() {
     super();
 
-    this.mouseDownHandler = (event) => {
-      this.startDragPolygon(event);
-    };
-    this.mouseMoveHandler = (event) => {
-      this.doDragPolygon(event);
-    };
-    this.mouseUpHandler = (event) => {
-      this.stopDragPolygon(event);
-    };
+    this.mouseDownHandler = this.startDragPolygon.bind(this);
+    this.mouseMoveHandler = this.doDragPolygon.bind(this);
+    this.mouseUpHandler = this.stopDragPolygon.bind(this);
   }
 
   connectedCallback() {
-    const bufferArea = this.getBufferArea();
-    const workArea = this.getWorkArea();
+    this.bufferArea = document.createElement('buffer-area');
+    this.workArea = document.createElement('work-area');
 
-    this.append(bufferArea);
-    this.append(workArea);
+    this.append(this.bufferArea);
+    this.append(this.workArea);
 
-    bufferArea.addEventListener('mousedown', this.mouseDownHandler);
-    workArea.addEventListener('mousedown', this.mouseDownHandler);
+    this.bufferArea.addEventListener('mousedown', this.mouseDownHandler);
+    this.workArea.addEventListener('mousedown', this.mouseDownHandler);
+  }
+
+  disconnectedCallback() {
+    this.bufferArea.removeEventListener('mousedown', this.mouseDownHandler);
+    this.workArea.removeEventListener('mousedown', this.mouseDownHandler);
   }
 
   getBufferArea() {
-    if (this.bufferArea === null) {
-      this.bufferArea = document.createElement('buffer-area');
-    }
     return this.bufferArea;
   }
 
   getWorkArea() {
-    if (this.workArea === null) {
-      this.workArea = document.createElement('work-area');
-    }
     return this.workArea;
   }
 
@@ -82,7 +75,7 @@ class DNDWrapper extends HTMLElement {
     let scale = 1;
     if (targetFrom === this.getBufferArea()) {
       scale = store.scale;
-      clonePolygon.style.transform = `scale(${scale}, ${scale})`;
+      clonePolygon.style.transform = `scale(${scale})`;
     }
 
     setDraggedObjectPosition({
@@ -118,17 +111,6 @@ class DNDWrapper extends HTMLElement {
     });
   }
 
-  getDragTargetByChild(deepEl) {
-    if (!deepEl) {
-      return null;
-    }
-    if (deepEl === this.getBufferArea() || deepEl === this.getWorkDragArea()) {
-      return deepEl;
-    }
-
-    return this.getDragTargetByChild(deepEl.parentElement);
-  }
-
   stopDragPolygon(event) {
     const { draggedPolygon } = this;
     if (!draggedPolygon) {
@@ -148,7 +130,7 @@ class DNDWrapper extends HTMLElement {
     draggedPolygon.style.display = 'block';
 
     if (target === this.getBufferArea()) {
-      draggedPolygon.style.transform = 'scale(1,1)';
+      draggedPolygon.style.transform = 'scale(1)';
     }
 
     target.appendPolygon(draggedPolygon);
@@ -162,6 +144,17 @@ class DNDWrapper extends HTMLElement {
 
     document.removeEventListener('mousemove', this.mouseMoveHandler);
     document.removeEventListener('mouseup', this.mouseUpHandler);
+  }
+
+  getDragTargetByChild(deepEl) {
+    if (!deepEl) {
+      return null;
+    }
+    if (deepEl === this.getBufferArea() || deepEl === this.getWorkDragArea()) {
+      return deepEl;
+    }
+
+    return this.getDragTargetByChild(deepEl.parentElement);
   }
 }
 

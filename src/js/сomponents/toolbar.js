@@ -53,7 +53,7 @@ class Toolbar extends HTMLElement {
   static doAction(actionName) {
     switch (actionName) {
       case 'create':
-        Toolbar.doCreateAction();
+        store.createPolygons();
         break;
       case 'save':
         store.saveData();
@@ -64,11 +64,6 @@ class Toolbar extends HTMLElement {
       default:
         break;
     }
-  }
-
-  static doCreateAction() {
-    const bufferArea = document.querySelector('buffer-area');
-    bufferArea.createPolygons();
   }
 }
 

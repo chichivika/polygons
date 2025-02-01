@@ -1,26 +1,29 @@
-import generatePolygonsData, { getPolygonDataByElement, renderPolygon } from '../utils/polygons';
-import store from '../utils/store';
+import { getPolygonDataByElement, renderPolygon } from '../../utils/polygons';
+import store, { PolygonsStore } from '../../utils/store';
 
 class BufferArea extends HTMLElement {
   static polygonPadding = 5;
-
-  static rowHeight = 110;
 
   static rowTopPadding = 5;
 
   constructor() {
     super();
 
-    this.resizeHandler = this.render.bind(this);
+    this.renderHandler = this.render.bind(this);
   }
 
   connectedCallback() {
-    window.addEventListener('resize', this.resizeHandler);
+    window.addEventListener('resize', this.renderHandler);
+    store.addListener('bufferPolygonsCreated', this.renderHandler);
+    store.addListener('clearData', this.renderHandler);
+
     this.render();
   }
 
   disconnectedCallback() {
-    window.removeEventListener('resize', this.resizeHandler);
+    window.removeEventListener('resize', this.renderHandler);
+    store.removeListener('bufferPolygonsCreated', this.renderHandler);
+    store.removeListener('clearData', this.renderHandler);
   }
 
   render() {
@@ -47,16 +50,6 @@ class BufferArea extends HTMLElement {
     const polygonData = getPolygonDataByElement(polygonEl);
     store.bufferPolygons = store.bufferPolygons.filter((data) => data.key !== polygonData.key);
     polygonEl.remove();
-  }
-
-  createPolygons() {
-    const polygonsData = generatePolygonsData({
-      maxHeight: BufferArea.rowHeight,
-    });
-    store.bufferPolygons = polygonsData;
-
-    this.innerHTML = '';
-    this.layoutPolygons(polygonsData);
   }
 
   layoutPolygons(polygonsData) {
@@ -121,7 +114,7 @@ class BufferArea extends HTMLElement {
       const polygonEl = renderPolygon(data);
       polygonEl.style.position = 'absolute';
       polygonEl.style.left = `${widthSum}px`;
-      polygonEl.style.top = `${rowNumber * BufferArea.rowHeight + BufferArea.rowTopPadding}px`;
+      polygonEl.style.top = `${rowNumber * PolygonsStore.maxPolygonHeight + BufferArea.rowTopPadding}px`;
 
       this.append(polygonEl);
       widthSum += data.width + polygonPadding;

@@ -74,3 +74,11 @@ work-area > work-drag-area {
     position: relative;
     overflow: hidden;
 }
+
+work-ruler {
+    position: relative;
+    overflow: hidden;
+    font-size: 10px;
+    font-weight: bold;
+    user-select: none;
+}

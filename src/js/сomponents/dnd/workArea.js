@@ -1,19 +1,20 @@
-import store from '../utils/store';
+import store from '../../utils/store';
 
 class WorkArea extends HTMLElement {
   static minCellSize = 20;
 
+  static originCellSize = 30;
+
   static maxCellSize = 70;
 
   static step = 10;
-
-  static originCellSize = 30;
 
   startDragMouse = null;
 
   constructor() {
     super();
 
+    this.renderHandler = this.render.bind(this);
     this.wheelHandler = this.wheel.bind(this);
     this.resizeHandler = this.resize.bind(this);
     this.mouseDownHandler = this.startDragging.bind(this);
@@ -25,12 +26,15 @@ class WorkArea extends HTMLElement {
     this.removeEventListener('wheel', this.wheelHandler);
     this.removeEventListener('mousedown', this.mouseDownHandler);
     window.removeEventListener('resize', this.resizeHandler);
+    store.removeEventListener('clearData', this.renderHandler);
   }
 
   connectedCallback() {
     this.addEventListener('wheel', this.wheelHandler);
     this.addEventListener('mousedown', this.mouseDownHandler);
     window.addEventListener('resize', this.resizeHandler);
+    store.addListener('clearData', this.renderHandler);
+
     this.render();
   }
 
@@ -82,10 +86,9 @@ class WorkArea extends HTMLElement {
   }
 
   stopDragging(event) {
-    const cellSize = WorkArea.getCellSize();
     const deltaX = event.clientX - this.startDragMouse[0];
     const deltaY = event.clientY - this.startDragMouse[1];
-    store.shift = [store.shift[0] + deltaX / cellSize, store.shift[1] + deltaY / cellSize];
+    store.shift = WorkArea.calculateNewShiftByDelta(deltaX, deltaY);
 
     this.startDragMouse = null;
     document.removeEventListener('mousemove', this.mouseMoveHandler);
@@ -110,10 +113,9 @@ class WorkArea extends HTMLElement {
       return;
     }
 
-    const cellSize = WorkArea.getCellSize();
     const deltaX = event.clientX - this.startDragMouse[0];
     const deltaY = event.clientY - this.startDragMouse[1];
-    const newShift = [store.shift[0] + deltaX / cellSize, store.shift[1] + deltaY / cellSize];
+    const newShift = WorkArea.calculateNewShiftByDelta(deltaX, deltaY);
     const dragArea = this.getDragArea();
 
     dragArea.setAttribute('shift-x', newShift[0]);
@@ -121,6 +123,12 @@ class WorkArea extends HTMLElement {
 
     this.getRulerX().setAttribute('shift', newShift[0]);
     this.getRulerY().setAttribute('shift', newShift[1]);
+  }
+
+  static calculateNewShiftByDelta(deltaX, deltaY) {
+    const cellSize = WorkArea.getCellSize();
+    const oldShift = store.shift;
+    return [oldShift[0] + deltaX / cellSize, oldShift[1] + deltaY / cellSize];
   }
 }
 

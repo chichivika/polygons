@@ -1,4 +1,5 @@
 import { generateKey } from './jsUtils';
+import generatePolygonsData from './polygons';
 
 const initialData = {
   scale: 1,
@@ -7,20 +8,52 @@ const initialData = {
   workPolygons: [],
 };
 
-class AppStore {
+function getInitialData() {
+  return { ...initialData };
+}
+
+function getStoreKeys() {
+  return [...Object.keys(initialData)];
+}
+
+function getInitialStoreParam() {
+  const savedData = localStorage.getItem('storeData');
+  if (savedData) {
+    try {
+      const param = Object.assign(getInitialData(), JSON.parse(savedData));
+      return {
+        ...param,
+        bufferPolygons: PolygonsStore.parsePolygonsFromSaving(param.bufferPolygons),
+        workPolygons: PolygonsStore.parsePolygonsFromSaving(param.workPolygons),
+      };
+    } catch (e) {
+      return {};
+    }
+  }
+  return {};
+}
+
+export class PolygonsStore {
+  static maxPolygonHeight = 110;
+
+  listeners = {
+    bufferPolygonsCreated: [],
+    clearData: [],
+  };
+
   constructor(param = {}) {
-    const initialParam = { ...initialData, ...param };
+    const initialParam = { ...getInitialData(), ...param };
     Object.assign(this, initialParam);
   }
 
   saveData() {
     const dataForSaving = {};
-    Object.keys(initialData).forEach((key) => {
+    getStoreKeys().forEach((key) => {
       const data = this[key];
       switch (key) {
         case 'workPolygons':
         case 'bufferPolygons':
-          dataForSaving[key] = AppStore.parsePolygonsForSaving(data);
+          dataForSaving[key] = PolygonsStore.parsePolygonsForSaving(data);
           break;
         default:
           dataForSaving[key] = data;
@@ -28,11 +61,48 @@ class AppStore {
       }
     });
     localStorage.setItem('storeData', JSON.stringify(dataForSaving));
+    alert('Данные сохранены в local storage!');
   }
 
   clearData() {
-    Object.assign(this, initialData);
+    const isConfirmed = confirm('Сбросить всё и удалить данные из local storage?');
+    if (!isConfirmed) {
+      return;
+    }
+    Object.assign(this, getInitialData());
     localStorage.clear();
+    this.callListeners('clearData');
+  }
+
+  createPolygons() {
+    const polygonsData = generatePolygonsData({
+      maxHeight: PolygonsStore.maxPolygonHeight,
+    });
+
+    this.bufferPolygons = polygonsData;
+    this.callListeners('bufferPolygonsCreated', polygonsData);
+  }
+
+  addListener(eventName, handler) {
+    const handlers = this.listeners[eventName];
+    if (handlers) {
+      handlers.push(handler);
+    }
+  }
+
+  removeListener(eventName, handler) {
+    const handlers = this.listeners[eventName];
+    if (handlers) {
+      this.listeners[eventName] = handlers.filter((func) => func !== handler);
+    }
+  }
+
+  callListeners(eventName, eventParam) {
+    const handlers = this.listeners[eventName];
+    if (!handlers || !handlers.length) {
+      return;
+    }
+    handlers.forEach((handler) => handler(eventParam));
   }
 
   static parsePolygonsForSaving(polygonsData) {
@@ -48,22 +118,5 @@ class AppStore {
   }
 }
 
-function getInitialStoreParam() {
-  const savedData = localStorage.getItem('storeData');
-  if (savedData) {
-    try {
-      const param = Object.assign(initialData, JSON.parse(savedData));
-      return {
-        ...param,
-        bufferPolygons: AppStore.parsePolygonsFromSaving(param.bufferPolygons),
-        workPolygons: AppStore.parsePolygonsFromSaving(param.workPolygons),
-      };
-    } catch (e) {
-      return {};
-    }
-  }
-  return {};
-}
-
-const store = new AppStore(getInitialStoreParam());
+const store = new PolygonsStore(getInitialStoreParam());
 export default store;

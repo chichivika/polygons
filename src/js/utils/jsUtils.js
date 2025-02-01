@@ -14,11 +14,6 @@ export function getRandomNumberFromTo({ start, end, stepsCount, includeStart = f
   return start + randomIndex * step;
 }
 
-export function getRandomArrayElement(array) {
-  const index = getRandomIndexFromTo(0, array.length);
-  return array[index];
-}
-
 export function getVectorsDelta(firstPoint, secondPoint) {
   return [secondPoint[0] - firstPoint[0], secondPoint[1] - firstPoint[1]];
 }
