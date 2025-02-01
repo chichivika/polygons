@@ -70,7 +70,7 @@ function generatePolygonPoints({ vertsCount, width, height }) {
     const vertVector = [Math.cos(randomAngle), Math.sin(randomAngle)];
     const randomRadius = getSideRandomRadius({ vertVector, centerPoint, width, height, radiusStepsCount });
     const vert = getVectorsSum(centerPoint, vertVector, 1, randomRadius);
-    pointsArray.push(vert);
+    pointsArray.push([Math.round(vert[0]), Math.round(vert[1])]);
   }
 
   return pointsArray;
