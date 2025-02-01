@@ -7,7 +7,7 @@ Polygons
 
 Демо доступно по ссылке https://chichivika.github.io/polygons/
 
-<img src="public/polygons-screen.jpg" width="700px"/>
+<img src="public/polygons-screen.JPG" width="700px"/>
 
 ## Генерация
 
@@ -15,22 +15,8 @@ Polygons
 
 *На самом деле, при числе вершин > 3 многоугольники являются звёздными, то есть содержат такую точку во внутренности, что отрезки, соединяющие вершины и эту точку, принадлежат многоугольнику. Совершенно произвольные многоугольники могли бы выглядеть как угодно страшно (пример снизу).
 
-<table>
-    <tr>
-        <td>
-            <picture>
-                <img src="public/star-polygon.png" style="margin-right: 10px" label="Звёздный многоугольник" width="70px"/>
-                <figcaption>Звёздный многоугольник</figcaption>
-            </picture>
-        </td>
-        <td>
-            <picture>
-                <img src="public/not-star-polygon.png" style="margin-right: 10px" label="Звёздный многоугольник" width="70px"/>
-                <figcaption>Не звёздный многоугольник</figcaption>
-            </picture>
-        </td>
-    </tr>
-</table>
+![Звёздный многоугольник](/public/star-polygon.png "Звёздный многоугольник")
+![Не звёздный многоугольник](/public/not-star-polygon.png "Не звёздный многоугольник")
 
 ## Работа с многоугольниками
 <ul>
