@@ -22,6 +22,7 @@ export default function generatePolygonsData({ maxHeight }) {
   }
   return polygonsData;
 }
+
 export function generatePolygonData(param) {
   const { width, height } = param;
   const pointsArray = generatePolygonPoints(param);

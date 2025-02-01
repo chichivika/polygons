@@ -64,8 +64,8 @@ class DNDWrapper extends HTMLElement {
 
     const polygonRect = polygon.getBoundingClientRect();
     this.draggedInitialPosition = {
-      left: polygonRect.left,
-      top: polygonRect.top,
+      left: polygonRect.left + window.scrollX,
+      top: polygonRect.top + window.scrollY,
       width: polygonRect.width,
       height: polygonRect.height,
     };
@@ -94,8 +94,7 @@ class DNDWrapper extends HTMLElement {
     this.draggedPolygon = clonePolygon;
     this.dragFromTarget = targetFrom;
 
-    document.addEventListener('mousemove', this.mouseMoveHandler);
-    document.addEventListener('mouseup', this.mouseUpHandler);
+    this.initDragMode();
   }
 
   doDragPolygon(event) {
@@ -140,6 +139,19 @@ class DNDWrapper extends HTMLElement {
     this.clearDragMode();
   }
 
+  static stopWheel(event) {
+    if (event.ctrlKey) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }
+
+  initDragMode() {
+    document.addEventListener('mousemove', this.mouseMoveHandler);
+    document.addEventListener('mouseup', this.mouseUpHandler);
+    document.addEventListener('wheel', DNDWrapper.stopWheel, { passive: false });
+  }
+
   clearDragMode() {
     this.dragFromTarget = null;
     this.draggedPolygon = null;
@@ -147,6 +159,7 @@ class DNDWrapper extends HTMLElement {
 
     document.removeEventListener('mousemove', this.mouseMoveHandler);
     document.removeEventListener('mouseup', this.mouseUpHandler);
+    document.removeEventListener('wheel', DNDWrapper.stopWheel, { passive: false });
   }
 
   getDragTargetByChild(deepEl) {
