@@ -74,7 +74,7 @@ class WorkArea extends HTMLElement {
   }
 
   startDragging(event) {
-    if (!event.ctrlKey) {
+    if (!event.ctrlKey || event.button !== 0) {
       return;
     }
     if (event.currentTarget?.tagName !== 'WORK-AREA') {

@@ -65,10 +65,6 @@ export class PolygonsStore {
   }
 
   clearData() {
-    const isConfirmed = confirm('Сбросить всё и удалить данные из local storage?');
-    if (!isConfirmed) {
-      return;
-    }
     Object.assign(this, getInitialData());
     localStorage.clear();
     this.callListeners('clearData');

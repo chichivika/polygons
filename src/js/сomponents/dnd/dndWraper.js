@@ -53,6 +53,9 @@ class DNDWrapper extends HTMLElement {
     if (this.draggedPolygon) {
       return;
     }
+    if (event.ctrlKey || event.button !== 0) {
+      return;
+    }
     if (event.target.tagName.toLowerCase() !== 'generated-polygon') {
       return;
     }
