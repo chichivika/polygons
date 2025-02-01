@@ -1,4 +1,4 @@
-import { setDraggedObjectPosition } from '../../utils/jsUtils';
+import { setDraggedObjectPosition, throttled } from '../../utils/jsUtils';
 import store from '../../utils/store';
 
 class DNDWrapper extends HTMLElement {
@@ -16,7 +16,7 @@ class DNDWrapper extends HTMLElement {
     super();
 
     this.mouseDownHandler = this.startDragPolygon.bind(this);
-    this.mouseMoveHandler = this.doDragPolygon.bind(this);
+    this.mouseMoveHandler = throttled(this.doDragPolygon.bind(this), 30);
     this.mouseUpHandler = this.stopDragPolygon.bind(this);
   }
 

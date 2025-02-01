@@ -1,4 +1,5 @@
 import store from '../../utils/store';
+import { throttled } from '../../utils/jsUtils';
 
 class WorkArea extends HTMLElement {
   static minCellSize = 20;
@@ -16,9 +17,9 @@ class WorkArea extends HTMLElement {
 
     this.renderHandler = this.render.bind(this);
     this.wheelHandler = this.wheel.bind(this);
-    this.resizeHandler = this.resize.bind(this);
+    this.resizeHandler = throttled(this.resize.bind(this), 50);
     this.mouseDownHandler = this.startDragging.bind(this);
-    this.mouseMoveHandler = this.doDragging.bind(this);
+    this.mouseMoveHandler = throttled(this.doDragging.bind(this), 40);
     this.mouseUpHandler = this.stopDragging.bind(this);
   }
 

@@ -41,3 +41,20 @@ export function setDraggedObjectPosition({ clientX, clientY, draggedObject, widt
 export function generateKey(prefix) {
   return `${prefix}-${Math.random().toString(16).slice(2)}`;
 }
+
+export function throttled(func, period) {
+  let lastCallTime = null;
+
+  return function (...rest) {
+    if (!lastCallTime) {
+      lastCallTime = Date.now();
+      func(...rest);
+      return;
+    }
+    if (Date.now() - lastCallTime < period) {
+      return;
+    }
+    lastCallTime = Date.now();
+    func(...rest);
+  };
+}
