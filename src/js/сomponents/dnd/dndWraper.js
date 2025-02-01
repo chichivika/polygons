@@ -44,11 +44,6 @@ class DNDWrapper extends HTMLElement {
     return this.workArea;
   }
 
-  getWorkDragArea() {
-    const workArea = this.getWorkArea();
-    return workArea.querySelector('work-drag-area');
-  }
-
   startDragPolygon(event) {
     if (this.draggedPolygon) {
       return;
@@ -166,7 +161,7 @@ class DNDWrapper extends HTMLElement {
     if (!deepEl) {
       return null;
     }
-    if (deepEl === this.getBufferArea() || deepEl === this.getWorkDragArea()) {
+    if (deepEl === this.getBufferArea() || deepEl === this.getWorkArea()) {
       return deepEl;
     }
 

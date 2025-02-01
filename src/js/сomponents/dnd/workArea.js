@@ -126,6 +126,18 @@ class WorkArea extends HTMLElement {
     this.getRulerY().setAttribute('shift', newShift[1]);
   }
 
+  appendPolygon(...rest) {
+    return this.getDragArea().appendPolygon(...rest);
+  }
+
+  removePolygon(...rest) {
+    return this.getDragArea().removePolygon(...rest);
+  }
+
+  returnPolygon(...rest) {
+    return this.getDragArea().returnPolygon(...rest);
+  }
+
   static calculateNewShiftByDelta(deltaX, deltaY) {
     const cellSize = WorkArea.getCellSize();
     const oldShift = store.shift;
