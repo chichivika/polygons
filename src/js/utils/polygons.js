@@ -16,7 +16,7 @@ export default function generatePolygonsData({ maxHeight }) {
       generatePolygonData({
         width: getRandomIndexFromTo(80, 150),
         height: getRandomIndexFromTo(80, maxHeight),
-        vertsCount: getRandomIndexFromTo(3, 10),
+        vertsCount: getRandomIndexFromTo(3, 12),
       }),
     );
   }

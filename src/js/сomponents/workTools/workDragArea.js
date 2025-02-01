@@ -80,10 +80,10 @@ class WorkDragArea extends HTMLElement {
     const polygonRight = polygonLeft + polygonData.width / originCellSize;
     const polygonBottom = polygonTop - polygonData.height / originCellSize;
 
-    const isSeenInHorizontal = (polygonLeft <= maxLeft && polygonLeft >= minLeft) ||
-    (polygonRight <= maxLeft && polygonRight >= minLeft);
-    const isSeenInVertical = (polygonTop <= maxTop && polygonTop >= minTop) ||
-    (polygonBottom <= maxTop && polygonBottom >= minTop);
+    const isSeenInHorizontal =
+      (polygonLeft <= maxLeft && polygonLeft >= minLeft) || (polygonRight <= maxLeft && polygonRight >= minLeft);
+    const isSeenInVertical =
+      (polygonTop <= maxTop && polygonTop >= minTop) || (polygonBottom <= maxTop && polygonBottom >= minTop);
 
     return isSeenInHorizontal && isSeenInVertical;
   }
@@ -111,10 +111,29 @@ class WorkDragArea extends HTMLElement {
     this.polygonsEl.append(polygonEl);
   }
 
+  returnPolygon(polygonEl, initialPosition) {
+    const initialPolygonData = initialPosition.polygonData;
+    if (!initialPolygonData) {
+      return;
+    }
+
+    store.workPolygons.push({ ...initialPolygonData });
+
+    const newPosition = this.getPositionByWorkCoordinates({
+      workLeft: initialPolygonData.workLeft,
+      workTop: initialPolygonData.workTop,
+    });
+    polygonEl.style.left = `${newPosition.left}px`;
+    polygonEl.style.top = `${newPosition.top}px`;
+
+    this.polygonsEl.append(polygonEl);
+  }
+
   removePolygon(polygonEl) {
     const polygonData = getPolygonDataByElement(polygonEl);
-    store.workPolygons = store.workPolygons.filter((data) => data.key !== polygonData.key);
+    const indexToRemove = store.workPolygons.findIndex((data) => data.key === polygonData.key);
     polygonEl.remove();
+    return store.workPolygons.splice(indexToRemove, 1)?.[0] || null;
   }
 
   getWorkCoordinatesByPosition({ left, top }) {
@@ -144,12 +163,12 @@ class WorkDragArea extends HTMLElement {
   fromPixelsToCoordinate(pxNumber) {
     const cellSize = Number(this.getAttribute('cell-size'));
 
-    return (pxNumber / cellSize);
+    return pxNumber / cellSize;
   }
 
   fromCoordinateToPixels(coordinate) {
     const cellSize = Number(this.getAttribute('cell-size'));
-    return (coordinate * cellSize);
+    return coordinate * cellSize;
   }
 
   drawCells({ ctx, cellSize, width, height }) {

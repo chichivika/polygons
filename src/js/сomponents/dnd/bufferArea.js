@@ -40,16 +40,27 @@ class BufferArea extends HTMLElement {
     const polygonRect = polygonEl.getBoundingClientRect();
     const targetRect = this.getBoundingClientRect();
 
-    polygonEl.style.left = `${polygonRect.left - targetRect.left}px`;
-    polygonEl.style.top = `${polygonRect.top - targetRect.top}px`;
+    const polygonLeft = Math.min(Math.max(polygonRect.left - targetRect.left, 0), targetRect.width - polygonData.width);
+    const polygonTop = Math.min(Math.max(0, polygonRect.top - targetRect.top), targetRect.height - polygonData.height);
+
+    polygonEl.style.left = `${polygonLeft}px`;
+    polygonEl.style.top = `${polygonTop}px`;
 
     this.append(polygonEl);
   }
 
+  returnPolygon(polygonEl, initialPosition) {
+    polygonEl.style.left = `${initialPosition.left}px`;
+    polygonEl.style.top = `${initialPosition.top}px`;
+
+    this.appendPolygon(polygonEl);
+  }
+
   removePolygon(polygonEl) {
     const polygonData = getPolygonDataByElement(polygonEl);
-    store.bufferPolygons = store.bufferPolygons.filter((data) => data.key !== polygonData.key);
+    const indexToRemove = store.bufferPolygons.findIndex((data) => data.key === polygonData.key);
     polygonEl.remove();
+    return store.bufferPolygons.splice(indexToRemove, 1)?.[0] || null;
   }
 
   layoutPolygons(polygonsData) {

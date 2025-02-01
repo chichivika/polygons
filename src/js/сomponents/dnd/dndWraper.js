@@ -68,12 +68,13 @@ class DNDWrapper extends HTMLElement {
       top: polygonRect.top + window.scrollY,
       width: polygonRect.width,
       height: polygonRect.height,
+      polygonData: null,
     };
 
     const clonePolygon = polygon.cloneNode(true);
 
     const targetFrom = this.getDragTargetByChild(polygon);
-    targetFrom.removePolygon(polygon);
+    this.draggedInitialPosition.polygonData = targetFrom.removePolygon(polygon);
 
     let scale = 1;
     if (targetFrom === this.getBufferArea()) {
@@ -121,18 +122,17 @@ class DNDWrapper extends HTMLElement {
 
     draggedPolygon.style.display = 'none';
     const deepTarget = document.elementFromPoint(event.clientX, event.clientY);
-    let target = this.getDragTargetByChild(deepTarget);
-
-    if (!target) {
-      target = this.dragFromTarget;
-      draggedPolygon.style.left = `${this.draggedInitialPosition.left}px`;
-      draggedPolygon.style.top = `${this.draggedInitialPosition.top}px`;
-    }
-
+    const target = this.getDragTargetByChild(deepTarget);
     draggedPolygon.style.display = 'block';
 
-    if (target === this.getBufferArea()) {
+    if (target === this.getBufferArea() || (!target && this.dragFromTarget === this.getBufferArea())) {
       draggedPolygon.style.transform = 'scale(1)';
+    }
+
+    if (!target) {
+      this.dragFromTarget.returnPolygon(draggedPolygon, this.draggedInitialPosition);
+      this.clearDragMode();
+      return;
     }
 
     target.appendPolygon(draggedPolygon);
