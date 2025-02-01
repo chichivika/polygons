@@ -37,6 +37,10 @@ class WorkRuler extends HTMLElement {
       }
 
       const markNumber = step * (i + shiftSign * integerShift);
+      if (!WorkRuler.checkShouldShowNumber(markNumber, i)) {
+        continue;
+      }
+
       const markEl = document.createElement('div');
       markEl.style.position = 'absolute';
 
@@ -51,6 +55,16 @@ class WorkRuler extends HTMLElement {
       markEl.innerText = `${markNumber}`;
       this.append(markEl);
     }
+  }
+
+  static checkShouldShowNumber(markNumber, i) {
+    if (Math.abs(markNumber) < 1000) {
+      return true;
+    }
+    if (Math.abs(markNumber) < 10000) {
+      return i % 2 === 0;
+    }
+    return i % 3 === 0;
   }
 
   getShift() {
